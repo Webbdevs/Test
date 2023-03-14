@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@48,400,0,0" />
+    <title>Choose quiz options</title>
+    <style>
+.material-symbols-outlined {
+  cursor: pointer;
+  font-variation-settings:
+  'FILL' 0,
+  'wght' 1000, /* increase the value for 'wght' to increase the width */
+  'GRAD' 0,
+  'opsz' 48;
+}
+
+            body{
+        background-image: url('background.jpg');
+        font-family: 'Courier New', Courier, monospace;
+        color: white;
+    }
+        #no-id{
+            font-size: 30px;
+        }
+        #no-text{
+            font-size: 25px;
+        }
+        input{
+            text-align: center;
+            width:50px;
+            height:30px;
+            border-radius: 10px;
+        }
+        #set-txt{
+            font-size: 30px;
+        }
+        button{
+            width:200px;
+            height:30px;
+            border-radius: 10px;
+            background-color: orange;
+            cursor: pointer;
+            font-size: 20px;
+            transition: transform 0.2s;
+        }
+        button:hover{
+            transform: scale(1.2);
+        }
+        #quiz-timer-box{
+            border-radius: 10px;
+            width: 50px;
+            height: 20px;
+            font-size: 15px;
+        }
+    </style>
+</head>
+<body>
+    <center>
+        <h1>Loading the quiz</h1>
+        <br>
+        <span id="no-id">Number of questions you want</span>
+        <input type="text" id="no-text"><br><br><br>
+        <span id="set-txt">Set Timer</span><br>
+        <span id="timer-btn" class="material-symbols-outlined">
+            timer
+            </span>
+            <div id="timer-container"></div><br><br>
+            <button id="btn">Start the quiz</button>
+    <script>
+        let urlParams = new URLSearchParams(window.location.search);
+        let quizName = urlParams.get('QuizName');
+        console.log(quizName)
+
+        let timerContainer = document.getElementById('timer-container')
+
+        let timerSelect = document.createElement('select')
+
+        let timerBtn = document.getElementById('timer-btn')
+        timerBtn.onclick = () =>
+        {
+            timerSelect.id='quiz-timer-box'
+            if(timerContainer.innerHTML.length>0){
+                return;
+            }
+            for(let i = 5; i <=60; i=i+5)
+            {
+                console.log(i)
+                let timerOptions = document.createElement('option')
+                timerOptions.value = i + 's'
+                timerOptions.innerHTML = i + 's'
+                timerSelect.append(timerOptions)
+            }
+            timerContainer.append(timerSelect)
+        }
+
+        let vBtn = document.getElementById('btn')
+        vBtn.onclick = () =>
+        {
+            let quizNo = document.getElementById('no-text')
+            let quizObj = {
+                QuestionNo:quizNo.value,
+                Time:timerSelect.value,
+                Quizname:quizName
+            }
+            const queryString = new URLSearchParams(quizObj).toString();
+
+             if(quizNo.value.length==0)
+            {
+                alert('Enter the number of questions')
+                return;
+            }
+                else if(timerContainer.innerHTML.length==0)
+                {
+                    alert('Select time by clicking the timer icon')
+                    return;
+                }
+            else
+            {
+                let newUrl = "offline-quiz-join.html?" + queryString;
+            //location.replace('offline-quiz-join.html')
+            window.location.href=newUrl
+            }
+            //window.open('offline-quiz-join.html', 'blank')
+        }
+    </script>
+</body>
+</html>

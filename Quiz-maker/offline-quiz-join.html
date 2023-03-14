@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Demo quizzes</title>
+    <style>
+            body{
+        background-image: url('background.jpg');
+        font-family: 'Courier New', Courier, monospace;
+        color: white;
+    }
+    #btn{
+        width:300px;
+        height:30px;
+        border-radius: 10px;
+        transition: transform 0.2s;
+        background: orange;
+        cursor: pointer;
+    }
+    #btn:hover{
+            transform: scale(1.2);
+        }
+        #question-txt{
+font-weight:bold;
+font-size:25px;
+}
+body{
+background:url("background.jpg");
+}
+h1,h2{
+	text-align:center;
+}
+#quiz-container{
+	background-image: url('background-img.jpg');
+	border-radius:10px;
+	width:400px;
+	height:auto;
+	text-align:left;
+    visibility: hidden;
+}
+.options{
+font-size:20px;
+}
+#submit-btn{
+	background:orange;
+	width:400px;
+	border-radius:10px;
+	height:30px;
+	font-size:20px;
+	cursor:pointer;
+}
+#submit-btn:hover{
+background:limegreen;
+}
+#result{
+	display:none;
+	text-align:center;
+}
+/*#display-time{
+    width:100px;
+    height:100px;
+    border-radius: 50px;
+    background: white;
+    color:black;
+}*/
+#display-time{
+    font-size: 40px;
+    width:100px;
+    height:auto;
+    border-radius: 50px;
+    background: white;
+    color: black;
+    visibility: hidden;
+}
+    </style>
+</head>
+<body>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+
+    <center>
+        <h1 style="font-size:40px;">Quiz</h1><br><br>
+        <button onclick="displaySome()"id="btn">Try this quiz</button>
+          <div id="quiz-container">
+          <span id="question-txt"></span>
+          <div class="options">
+          <span id="option-a-id">
+          <input onclick="getVal(event)" class="options-cl"type="radio" name="opt-btns">
+          </span>
+          </div>
+          <div class="options">
+          <span id="option-b-id">
+          <input onclick="getVal(event)" class="options-cl"type="radio" name="opt-btns">
+          </span>
+          </div>
+          <div class="options">
+          <span id="option-c-id">
+          <input onclick="getVal(event)" class="options-cl"type="radio" name="opt-btns">
+          </span>
+          </div>
+          <div class="options">
+          <span id="option-d-id">
+          <input onclick="getVal(event)" class="options-cl"type="radio" name="opt-btns">
+          </span>
+          </div>
+          <button id="submit-btn">Submit and attempt next question</button>
+          </div>
+              <div id="display-time"></div>
+          <h1 id="result"></h1>
+    </center>
+    <script>
+            let sound = new Audio("Stopwatch.mp3")
+      let alarmSound = new Audio("clock-ticking.wav")
+      let quizGap;
+      let docName = ''
+
+      let soundStop;
+      //this works by getting the answer in event.target
+        let ansCol = ''
+let docId = ''
+let vAnswer = ''
+function getVal(e)
+{
+vAnswer = e.target.parentElement.innerText
+ansCol = e.target.parentElement
+}
+//defining varaibles for the use of quizzes especially time and options append
+let timeDuration = 0;
+let timeUnit = ''
+let aCounter = 0;
+let change_text1;
+let change_text2;
+let change_text3;
+let change_text4;
+
+let score = 0;
+let realAnswer;
+let currentQuiz;
+let ansCounter = -1;
+let counter = 0;
+let frstAnswer;
+
+//getting the parametres passed from the try-quiz-options
+const queryString = window.location.search;
+
+const urlParams = new URLSearchParams(queryString);
+
+let time = urlParams.get('Time');
+let questNo = urlParams.get('QuestionNo');
+let quizRef = urlParams.get('Quizname');
+
+
+if(quizRef=='Science quiz')
+{
+  docName = 'Science-quiz-org'
+}
+  else
+  {
+    docName = quizRef.replace(' ', '-')
+  }
+
+timeUnit = time[time.length - 1]
+timeDuration = time.substr(0, time.length - 1)
+//configurung firebase
+let firebaseConfig = {
+          apiKey: "AIzaSyB2dc7G54nZg1H-tKUbxRtWmADEQxRJv10",
+          authDomain: "simple-login-page-736b4.firebaseapp.com",
+          databaseURL: "https://simple-login-page-736b4-default-rtdb.firebaseio.com",
+          projectId: "simple-login-page-736b4",
+          storageBucket: "simple-login-page-736b4.appspot.com",
+          messagingSenderId: "787439045671",
+          appId: "1:787439045671:web:7f597366a3893300fed202",
+          measurementId: "G-WTGQ0B68PM"
+        };
+        firebase.initializeApp(firebaseConfig)
+        let database = firebase.firestore()
+      let wQuiz;
+      let timerGet;
+      let randomIndex;
+
+let chosedArr = []
+let docRef = database.collection('Offline-quizzes');
+
+//this is the function used to get the firebase doc with quizName passed as a parameter. it is the doc's name
+function getQuiz(quizName) {
+  return docRef.doc(quizName).get()
+    .then((doc) => {
+      return doc.data().QuizData;
+    });
+}
+let lastRandomIndex = -1; // initialize to -1 to avoid matching with first element
+ randomIndex = lastRandomIndex;
+ //this selects the quiz randomly and sends to the displayFQuiz function with two params chosed quiz and the doc's name(firebase)
+function displaySome() 
+{
+    document.getElementById('display-time').style.visibility = 'visible'
+    document.getElementById('quiz-container').style.visibility = 'visible';
+    document.getElementById('btn').style.display='none'
+   // if (quizRef === "Science quiz") 
+  //{
+      getQuiz(docName)
+      .then((wQuiz) => 
+      {
+          for(let i = 0; i <=questNo - 1; i++)
+        {
+          while (randomIndex === lastRandomIndex) 
+          {
+            randomIndex = Math.floor(Math.random() * wQuiz.length);
+          }
+          (randomIndex)
+          lastRandomIndex = randomIndex;
+          chosedArr.push(wQuiz[randomIndex])
+
+        } 
+      //  (chosedArr)
+      displayFQuiz(chosedArr,randomIndex)
+    })
+  //} 
+}
+//this is the first question after clicking start the quiz the wQuiz is the selected questions.this displays the questions and options the first one
+function displayFQuiz(wQuiz)
+{
+  soundStop=false
+  sound.play()
+  let vQuestion = document.getElementById('question-txt')
+		let optionA = document.getElementById('option-a-id')
+		let optionB = document.getElementById('option-b-id')
+		let optionC = document.getElementById('option-c-id')
+		let optionD = document.getElementById('option-d-id')
+				
+    wQuiz[0].Question = wQuiz[0].Question.trim()
+    wQuiz[0].OptionA = wQuiz[0].OptionA.trim()
+    wQuiz[0].OptionB = wQuiz[0].OptionB.trim()
+    wQuiz[0].OptionC = wQuiz[0].OptionC.trim()
+    wQuiz[0].OptionD = wQuiz[0].OptionD.trim()
+    wQuiz[0].Answer = wQuiz[0].Answer.trim()
+
+		change_text1 = optionA.childNodes[0]
+		change_text1.nodeValue = wQuiz[0].OptionA
+		
+		change_text2 = optionB.childNodes[0]
+		change_text2.nodeValue = wQuiz[0].OptionB
+		
+		change_text3 = optionC.childNodes[0]
+		change_text3.nodeValue = wQuiz[0].OptionC
+		
+		change_text4 = optionD.childNodes[0]
+		change_text4.nodeValue = wQuiz[0].OptionD
+	
+		vQuestion.innerText= wQuiz[0].Question
+		
+        if(timeUnit=='s')
+        {
+          //  alert('s')
+          //  time = doc.data().TimeDuration
+            secInterval = setInterval(secondStart, 1000);
+        }
+        else if(timeUnit=='m')
+        {
+            //time = doc.data().TimeDuration
+            minuteConv = timeDuration * 60
+            minInterval = setInterval(minuteStart, 1000)
+        }
+}
+//the function when clicked send the seletced array of questions and doc name to he fucntion called on click
+let submitBtn = document.getElementById('submit-btn')
+    submitBtn.onclick = () =>
+	{
+    setTimeout(function() {
+      clearInterval(secInterval)
+      soundStop = true
+     // secondStart()
+     // alarmSound.pause() 
+    displayQuiz(chosedArr, docName);
+  }, 1000);
+
+  } 
+  //this fucntion does a lot of things it receives the quiz and doc name as params.then it appends the questions check the correct answer clear's the timer. sets the timer
+
+  function displayQuiz(wQuiz,quizIds)
+    {
+      soundStop=false;
+       // alert(quizIds)
+                    //(minuteConv)
+            timeDuration = time.substr(0, time.length - 1)
+                minuteConv = timeDuration * 60
+            displaySec = 60
+
+					let vDiv = document.createElement('div')
+				let vQuestion = document.getElementById('question-txt')
+		let optionA = document.getElementById('option-a-id')
+		let optionB = document.getElementById('option-b-id')
+		let optionC = document.getElementById('option-c-id')
+		let optionD = document.getElementById('option-d-id')
+		
+		let allOptions = document.querySelectorAll('.options-cl')
+		for(let element of allOptions)
+		{
+			element.checked = false
+		}
+					counter++;
+					ansCounter++;
+					realAnswer = wQuiz[ansCounter].Answer;
+			currentQuiz = wQuiz[counter]
+
+            if(timeUnit=='s')
+            {
+             clearInterval(secInterval);
+            // alarmSound.pause()
+            }
+                else if(timeUnit=='m')
+                {
+                    clearInterval(minInterval)
+                }
+
+			if(currentQuiz!=null)
+			{
+        sound.play()
+                if(timeUnit=='s')
+            {
+                  secInterval = setInterval(secondStart, 1000);
+            }
+            else if(timeUnit=='m')
+            {
+                minInterval = setInterval(minuteStart, 1000)
+            }
+				if(vAnswer===realAnswer)
+			{
+				score++;
+			}
+             //  else if(vAnswer)
+             currentQuiz.Question = currentQuiz.Question.trim()
+             currentQuiz.OptionA = currentQuiz.OptionA.trim()
+             currentQuiz.OptionB = currentQuiz.OptionB.trim()
+             currentQuiz.OptionC = currentQuiz.OptionC.trim()
+             currentQuiz.OptionD = currentQuiz.OptionD.trim()
+             currentQuiz.Answer = currentQuiz.Answer.trim()
+			vQuestion.innerText = currentQuiz.Question
+			//(realAnswer)
+		change_text1 = optionA.childNodes[0]
+		change_text1.nodeValue = currentQuiz.OptionA
+		
+		change_text2 = optionB.childNodes[0]
+		change_text2.nodeValue = currentQuiz.OptionB
+		
+		change_text3 = optionC.childNodes[0]
+		change_text3.nodeValue = currentQuiz.OptionC
+		
+		change_text4 = optionD.childNodes[0]
+		change_text4.nodeValue = currentQuiz.OptionD
+		}
+				else
+			{
+				
+				if(vAnswer===realAnswer)
+				{
+					score++;
+				}
+				let obje = 
+				{
+				Name:localStorage.getItem('NAME'),
+				Score: score,
+				}
+			/*	docRef.doc(docId).update({
+    UserData: firebase.firestore.FieldValue.arrayUnion(obje)
+});			*/
+				document.getElementById('display-time').style.visibility = 'hidden'
+				document.getElementById('quiz-container').style.display='none'
+				let result = document.getElementById('result')
+				result.style.display='inline'
+				result.innerText = "You got " + score + " questions correctly"
+				
+				//document.getElementById('org-answers').style.display='inline'
+								
+			}
+      clearInterval(quizGap)
+}
+
+//getQuiz("my-quiz-name")
+//these are the time intervals 
+function secondStart() 
+{
+    if (timeDuration === 0) 
+    {
+        clearInterval(secInterval);
+        displayQuiz(chosedArr,docName)
+        //alert(realQuiz)
+     //   return;
+    } 
+        else 
+        {
+          timeDuration--;
+            if (timeDuration !== -1) 
+            {	    
+
+                alarmSound.play()
+                document.getElementById('display-time').innerText = timeDuration
+            //  else
+          //    alert('sound-top')
+           //   console.log('bell')
+               // let sound = new Audio('clock-ticking.wav')
+                //displayTime.innerText = time
+           // (time + " seconds remaining");
+            }
+        }
+    }
+    function minuteStart()
+{
+	if(minuteConv % 60==0)
+	{
+        timeDuration--;
+		//(time) 
+	}
+  if (timeDuration === -1) {
+    alarmSound.play()
+    ('time up')
+    clearInterval(minInterval);
+    displayQuiz(chosedArr,docName)
+  }
+   else { 
+	displaySec--;
+
+    minuteConv--;
+    document.getElementById('display-time').innerText = timeDuration + ':' + displaySec
+  }
+}
+    </script>
+</body>
+</html>

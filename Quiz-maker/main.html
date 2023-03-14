@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Online Quiz</title>
+    <style>
+        body{
+            background-image: url('background.jpg');
+            font-family: 'Courier New', Courier, monospace;
+        }
+        #online-play{
+            color:red;
+
+        }
+        #friend-play{
+            color:red;
+            text-shadow: 0 0 5px black, 0 0 10px red, 0 0 15px red;
+        }
+        #quiz-play{
+            color:orange;
+            text-shadow: 0 0 5px black, 0 0 10px orange, 0 0 15px orange;
+        }
+        #search-play{
+            text-shadow: 0 0 5px black, 0 0 10px limegreen, 0 0 15px limegreen;
+            color:limegreen;
+        }
+        #offline-play{
+            color:yellow;
+            text-shadow: 0 0 5px black, 0 0 10px yellow, 0 0 15px yellow;
+        }
+        #my-play{
+            color:violet;
+            text-shadow: 0 0 5px black, 0 0 10px violet, 0 0 15px violet;
+        }
+        h1{
+            font-size: 40px;
+            cursor: pointer;
+            background-color: lightgray;
+            border-radius: 20px;
+        }
+        #text-container{
+	text-align:center;
+    color:white;
+    font-weight: bold;
+    font-size:20px;
+}
+footer
+{
+    color: black;
+    background: white;
+    width:100%;
+    text-align: center;
+    position: relative;
+    bottom:-100px;
+    font-weight: bold;
+    font-size: 20px;
+}
+#about
+{
+    cursor: pointer;
+}
+#color-btn
+{
+    background: white;
+    width: 200px;
+    height:30px;
+    border-radius: 10px;
+    cursor: pointer;
+}
+#color-btn:hover
+{
+    background: black;
+    color:white;
+}
+.light-txt
+{
+    background: white;
+    color:black;
+}
+.dark-txt
+{
+    background-image:url('background.jpg');
+    color:white;
+}
+    </style>
+</head>
+<body id="body">
+    <!--div id="text-container">
+        This is a website where you can make quizzes and send them to your friends.<br>
+        They could attend the quiz by entering the code that you get when you make a quiz
+        </div><br><br-->
+    <center><br>
+        <div id="page-container">
+        <h1 id="friend-play">Attempt Quiz</h1>
+        <h1 id="quiz-play">Make a Quiz</h1>
+        <h1 id="search-play">Search For A Quiz</h1>
+        <h1 id="offline-play">Try some quizzes</h1>
+        <h1 class='glowing-text'id="my-play">My Quizzes</h1>
+        </div>
+    </center>
+    <script>
+        //to get and save the name of the user
+                let vName;
+                getName()
+        function getName()
+        {
+            if(localStorage.getItem('NAME')==null)
+            {
+                vName = prompt('Enter your name or nickname')
+            }
+            else 
+            return;
+        }
+        let i = 1
+
+        if(localStorage.getItem('NAME')==null)
+            {
+                while( i > 0)
+        {
+            if(vName==null || vName.length==0)
+        {
+            alert('Enter your name it is necessary')
+            getName()
+        }
+        else
+        localStorage.setItem('NAME', vName)
+        break;
+        }
+            }
+        //alert(vName)
+        let playFBtn = document.getElementById('friend-play')
+        playFBtn.onclick = function()
+        {
+            window.open("join.html", "blank")
+        }
+        let quizPlay = document.getElementById('quiz-play')
+        quizPlay.onclick = () =>
+        {
+            window.open("add-quiz.html", "blank")
+        }
+        let myQuiz = document.getElementById('my-play')
+        myQuiz.onclick = () =>
+        {
+            window.open("my-quiz-new.html", "blank")
+        }
+        let aboutBtn = document.getElementById('about')
+        //aboutBtn.onclick = () =>
+        //{
+          //  window.open("about.html", "_blank")
+        //}
+        let searchBtn = document.getElementById('search-play')
+        searchBtn.onclick = () =>
+        {
+            window.open("search-page.html", "_blank")
+        }
+        let offlineBtn = document.getElementById('offline-play')
+        offlineBtn.onclick = () =>
+        {
+            window.open("Demo-quiz.html", "_blank")
+        }
+    </script>
+</body>
+</html>

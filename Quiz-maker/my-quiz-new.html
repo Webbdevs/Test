@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Quizzes</title>
+    <style>
+                body{
+            background-image: url('background.jpg');
+            font-family: 'Courier New', Courier, monospace;
+            color: white;
+            font-weight: bold;
+        }
+                #quiz-txt{
+            font-size: 40px;
+            font-weight: bold;
+            color:yellow;
+            text-shadow: 0 0 5px white, 0 0 10px black, 0 0 15px black;
+        }
+        #container{
+            width:50%;
+            height:auto;
+            background: lightgray;
+            color: black;
+        }
+        #quiz-title{
+            font-size:25px;
+            cursor: pointer;
+        }
+        #quizCode{
+            background-color: skyblue;
+            font-size: 20px;
+        }
+        #hr-id{
+            border:2px solid white;
+        }
+        #user-score{
+            font-size: 20px;
+        }
+    </style>
+</head>
+<body>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+
+    <center>
+        <h1 id="quiz-txt">MY QUIZZES</h1><hr>
+    <div>Click on the quiz name and you will get the unique code for that quiz</div>
+        <div id="container">
+        </div>
+    </center>
+    <script>
+        let docId = ''
+
+         let firebaseConfig = {
+          apiKey: "AIzaSyB2dc7G54nZg1H-tKUbxRtWmADEQxRJv10",
+          authDomain: "simple-login-page-736b4.firebaseapp.com",
+          databaseURL: "https://simple-login-page-736b4-default-rtdb.firebaseio.com",
+          projectId: "simple-login-page-736b4",
+          storageBucket: "simple-login-page-736b4.appspot.com",
+          messagingSenderId: "787439045671",
+          appId: "1:787439045671:web:7f597366a3893300fed202",
+          measurementId: "G-WTGQ0B68PM"
+        };
+        firebase.initializeApp(firebaseConfig)
+        let database = firebase.firestore()
+        let brs = document.createElement('br');
+let vContainer = document.getElementById('container');
+let docRef = database.collection("Quiz-data");
+
+docRef.where("UniqueId", "==", localStorage.getItem("UniqueID"))
+    .get()
+    .then((querySnapshot) => {
+        querySnapshot.forEach((doc) => {
+            let wrapContainer = document.createElement('div');
+            wrapContainer.id = 'wrapContainer';
+            let quizTitle = document.createElement('div');
+            quizTitle.id='quiz-title';
+            quizTitle.innerText = doc.data().Title;
+            wrapContainer.append(quizTitle);
+            let quizCode = document.createElement('span');
+            quizCode.id = "quizCode";
+            wrapContainer.append(quizCode);
+            vContainer.append(wrapContainer);
+             vContainer.append(document.createElement('br'));
+            quizTitle.addEventListener('click', function(e) {
+                if (e.target.innerText == doc.data().Title) {
+                    quizCode.innerText = doc.data().UniqueCode;
+                }
+
+                			docId = doc.id
+                            docRef.doc(docId).get().then((doc) => {
+                    if (doc.exists) {
+                        let vHr = document.createElement('hr')
+                        vHr.id='hr-id'
+
+                        let userName = document.createElement('div')
+                        userName.id='user-score'
+                        let userScore = document.createElement('span')
+                        wrapContainer.append(userName)
+                        wrapContainer.append(vHr)
+                        wQuiz = doc.data().UserData
+                            for(let i = 0; i < wQuiz.length; i++)
+                            {
+                                console.log(i)
+                        userName.innerText += "Player name : " + wQuiz[i].Name + '\n' + "Score: " + wQuiz[i].Score + '\n' + '\n'
+
+                        console.log(userName)
+                        
+                        //quizTitle.append(userName)
+                      //  quizTitle.append(vHr)
+                            }
+                    }
+                    else 
+                    {
+                        console.log("No such document!");
+                    }
+                }).catch((error) => {
+                    console.log("Error getting document:", error);
+                });
+
+            });
+        });
+    });
+
+        let quizTitle = document.createElement('h2')
+        
+    </script>
+</body>
+</html>

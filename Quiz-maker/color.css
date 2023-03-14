@@ -1,0 +1,8 @@
+.light-txt{
+    background: white;
+    color:black;
+}
+.dark-txt{
+    background-image:url('background.jpg');
+    color:white;
+}

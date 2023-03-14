@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quizzes</title>
+    <style>
+        body{
+            background-image: url('background.jpg');
+            font-family: 'Courier New', Courier, monospace;
+            color: white;
+        }
+        #header{
+            font-size: 30px;
+            background: none;
+            text-shadow: 0 0 5px black, 0 0 10px white, 0 0 15px blue;
+        }
+        h1{
+            background: lightgray;
+            font-size: 50px;
+            border-radius: 30px;
+            cursor: pointer;
+        }
+        #tech-play{
+            color:blue;
+            text-shadow: 0 0 5px black, 0 0 10px darkblue, 0 0 15px darkblue;
+        }
+        #science-play{
+            color:orange;
+            text-shadow: 0 0 5px black, 0 0 10px orange, 0 0 15px red;
+        }
+        #sports-play{
+            color:limegreen;
+            text-shadow: 0 0 5px black, 0 0 10px lime, 0 0 15px lime;
+        }
+    </style>
+</head>
+<body>
+    <center>
+        <h1 id="header">SELECT A QUIZ</h1>
+        <div id="option-container">
+            <h1 class='offline' id="tech-play">Tech quiz</h1>
+            <h1 class='offline' id="science-play">Science quiz</h1>
+            <h1 class='offline' id="sports-play">Sports quiz</h1>
+        </div>
+    </center>
+    <script>
+        let allBtns = document.querySelectorAll('.offline')
+        for(let singleBtn of allBtns)
+        {
+            singleBtn.onclick = (e) =>
+            {
+                window.location.href=`try-quiz-options.html?QuizName=` + e.target.innerText
+                return;
+            }
+        }
+        /*let scienceBtn = document.getElementById('science-play')
+        scienceBtn.onclick = (e) =>
+        {
+            ///alert(e.target.innerText)
+            //window.location.href=`offline-quiz.html?QuizInfo=` + val;
+            //window.open('try-quiz-options.html', 'blank')
+        }*/
+    </script>
+</body>
+</html>

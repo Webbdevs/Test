@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Join Quiz</title>
+    <style>
+        body{
+            color: white;
+            background-image: url('background.jpg');
+            font-family: 'Courier New', Courier, monospace;
+        }
+        #name-txt{
+            color:white;
+            background-image: url('background-img.jpg');
+             resize: none;
+             width:450px;
+             height:150px;
+             font-size: 30px;
+             text-align: center;
+        }
+        #code-txt{
+            color:white;
+            background-image: url('background-img.jpg');
+             resize: none;
+             width:450px;
+             height:150px;
+             font-size: 30px;
+             text-align: center;
+
+        }
+        textarea::placeholder{
+            color:yellow;
+            text-align: center;
+            font-size: 35px;
+            text-shadow: 0 0 5px yellowgreen, 0 0 10px yellowgreen, 0 0 15px yellowgreen;
+        }
+        #name-btn{
+            background: orange;
+            width:450px;
+            height:30px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        #code-btn{
+            background: orange;
+            width:450px;
+            height:30px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: transform 0.2s;
+
+        }
+        #code-btn:hover{
+            transform: scale(1.2);
+            background-color: lime;
+        }
+        #name-btn:hover{
+            transform: scale(1.2);
+            background-color: lime;
+        }
+        #question-txt{
+font-weight:bold;
+font-size:25px;
+}
+body{
+background:url("background.jpg");
+}
+h1,h2{
+	text-align:center;
+}
+#quiz-container{
+	background-image: url('background-img.jpg');
+	border-radius:10px;
+	width:400px;
+	height:200px;
+	text-align:left;
+    visibility: hidden;
+}
+.options{
+font-size:20px;
+}
+#submit-btn{
+	background:orange;
+	width:400px;
+	border-radius:10px;
+	height:30px;
+	font-size:20px;
+	cursor:pointer;
+}
+#submit-btn:hover{
+background:limegreen;
+}
+#result{
+	display:none;
+	text-align:center;
+}
+/*#display-time{
+    width:100px;
+    height:100px;
+    border-radius: 50px;
+    background: white;
+    color:black;
+}*/
+#display-time{
+    font-size: 40px;
+    width:100px;
+    height:auto;
+    border-radius: 50px;
+    background: white;
+    color: black;
+    visibility: hidden;
+}
+    </style>
+</head>
+<body>
+    <center>
+    <h1 style="color: blueviolet; font-size: 45px;text-shadow: 0 0 5px purple, 0 0 10px purple, 0 0 15px purple;">PLAY WITH FRIENDS</h1>
+    </center>
+    <center>
+        <textarea placeholder="ENTER THE CODE" id="code-txt"></textarea><br>
+        <button id="code-btn">Submit</button>
+        </center>
+        <center>
+            <div id="quiz-container">
+            <center>
+            <span id="question-txt"></span>
+            <div class="options">
+            <span id="option-a-id">
+            <input onclick="getVal(event)" class="options-cl"type="radio" name="opt-btns">
+            </span>
+            </div>
+            <div class="options">
+            <span id="option-b-id">
+            <input onclick="getVal(event)" class="options-cl"type="radio" name="opt-btns">
+            </span>
+            </div>
+            <div class="options">
+            <span id="option-c-id">
+            <input onclick="getVal(event)" class="options-cl"type="radio" name="opt-btns">
+            </span>
+            </div>
+            <div class="options">
+            <span id="option-d-id">
+            <input onclick="getVal(event)" class="options-cl"type="radio" name="opt-btns">
+            </span>
+            </div>
+            <center>
+            <button id="submit-btn">Submit and attempt next question</button>
+            </center>
+            </center>
+            </div>
+            <center>
+                <div id="display-time"></div>
+            </center>
+            <h1 id="result"></h1>
+            
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+
+    <script>
+        let sound = new Audio("Stopwatch.mp3")
+     //   import { changeCol } from './functions.js';
+
+// Call the function
+//changeCol();
+
+
+        let realQuiz;
+	let quizId;
+        let codeBtn = document.getElementById('code-btn')
+
+        let urlParams = new URLSearchParams(window.location.search);
+        let quizPage = urlParams.get('sendQuiz');
+
+        if(quizPage!=null)
+        {
+            codeBtn.innerText = 'Join the quiz'
+            document.getElementById('code-txt').style.display='none'
+        }
+        //alert(variable_name)
+        let vAnswer;
+        let secInterval;
+        let minInterval;
+        let time;
+        let minuteConv;
+        let displaySec = 60
+
+    function getVal(e)
+{
+vAnswer = e.target.parentElement.innerText
+ansCol = e.target.parentElement
+//console.log(vAnswer + ' onclick')
+}
+
+        let firebaseConfig = {
+  apiKey: "AIzaSyB2dc7G54nZg1H-tKUbxRtWmADEQxRJv10",
+  authDomain: "simple-login-page-736b4.firebaseapp.com",
+  databaseURL: "https://simple-login-page-736b4-default-rtdb.firebaseio.com",
+  projectId: "simple-login-page-736b4",
+  storageBucket: "simple-login-page-736b4.appspot.com",
+  messagingSenderId: "787439045671",
+  appId: "1:787439045671:web:7f597366a3893300fed202",
+  measurementId: "G-WTGQ0B68PM"
+};
+firebase.initializeApp(firebaseConfig)
+let database = firebase.firestore()
+//defining all the variables needed for the code
+let ansCol = ''
+let docId = ''
+
+/*function getVal(e)
+{
+vAnswer = e.target.parentElement.innerText
+ansCol = e.target.parentElement
+}*/
+
+
+let aCounter = 0;
+let change_text1;
+let change_text2;
+let change_text3;
+let change_text4;
+
+let score = 0;
+let realAnswer;
+let wQuizD;
+let currentQuiz;
+let ansCounter = -1;
+let counter = 0;
+let frstAnswer;
+
+let docRef = database.collection("Quiz-data")
+
+let arr = localStorage.getItem('QuizCode') ? JSON.parse(localStorage.getItem('QuizCode')) : [];
+let getArr = []
+        codeBtn.onclick = () =>
+        {
+            if(quizPage==null)
+        {
+            quizId = document.getElementById('code-txt')
+            for(let i = 0; i < arr.length; i++)
+            {
+                if(quizId.value==arr[i])
+                {
+                    alert('You have attempted this quiz one time.You cannot attempt it')
+                quizId.value = ''
+                return;
+                }
+            }
+
+            if(quizId.value.length==0)
+            {
+                alert('Enter the code')
+                return;
+            }
+            else
+                {
+                    realQuiz = quizId.value
+                    displayFQuiz(realQuiz)
+                        document.getElementById('display-time').style.visibility = 'visible'
+                        codeBtn.style.display = 'none';
+                document.getElementById('code-txt').style.display = 'none';
+                document.getElementById('quiz-container').style.visibility = 'visible';
+                arr.push(quizId.value);
+                localStorage.setItem('QuizCode', JSON.stringify(arr));  
+                }
+        }
+            else if (quizPage.length>0)
+            {
+			            for(let i = 0; i < arr.length; i++)
+            {
+                if(quizPage==arr[i])
+                {
+                    alert('You have attempted this quiz one time.You cannot attempt it')
+					location.href = "search-page.html"
+                return;
+                }
+            }
+			realQuiz = quizPage
+                displayFQuiz(realQuiz)
+                document.getElementById('display-time').style.visibility = 'visible'
+                codeBtn.style.display = 'none';
+                document.getElementById('code-txt').style.display = 'none';
+                document.getElementById('quiz-container').style.visibility = 'visible';
+                arr.push(quizPage);
+                localStorage.setItem('QuizCode', JSON.stringify(arr));  
+            }
+        }
+function displayFQuiz(quizAr){
+    sound.play()
+    docRef.where("UniqueCode", "==", quizAr)
+.get()
+.then((querySnapshot) =>
+{
+	querySnapshot.forEach((doc) =>
+	{
+        console.log(doc.data())
+		let vQuestion = document.getElementById('question-txt')
+		let optionA = document.getElementById('option-a-id')
+		let optionB = document.getElementById('option-b-id')
+		let optionC = document.getElementById('option-c-id')
+		let optionD = document.getElementById('option-d-id')
+		
+				wQuizD = doc.data().QuizData
+				
+		change_text1 = optionA.childNodes[0]
+		change_text1.nodeValue = wQuizD[0].OptionA
+		
+		change_text2 = optionB.childNodes[0]
+		change_text2.nodeValue = wQuizD[0].OptionB
+		
+		change_text3 = optionC.childNodes[0]
+		change_text3.nodeValue = wQuizD[0].OptionC
+		
+		change_text4 = optionD.childNodes[0]
+		change_text4.nodeValue = wQuizD[0].OptionD
+	
+		vQuestion.innerText= wQuizD[0].Question
+		
+        if(doc.data().TimeUnit=='s')
+        {
+          //  alert('s')
+            time = doc.data().TimeDuration
+            secInterval = setInterval(secondStart, 1000);
+        }
+        else if(doc.data().TimeUnit=='m')
+        {
+            time = doc.data().TimeDuration
+            minuteConv = time * 60
+            minInterval = setInterval(minuteStart, 1000)
+        }
+
+			/*if(vAnswer==wQuizD[0].Answer)
+			{
+				score++;
+				console.log(score)
+			}*/
+	})
+})
+}
+let displayTime = document.getElementById('display-time')
+let uAnswer = ''
+
+	let submitBtn = document.getElementById('submit-btn')
+    submitBtn.onclick = () =>
+	{
+	if (quizPage===undefined && quizId.value === undefined || quizPage===null && quizId.value === null) 
+	{
+        realQuiz = ''
+		//alert('fuck');
+		displayQuiz('');
+	} 
+		else if (quizPage === null) 
+		{
+			realQuiz = quizId.value
+		//	alert('working');
+		}
+			 else if (quizPage !== null) 
+			{
+				//alert('working');
+				realQuiz = quizPage;
+			}
+            displayQuiz(realQuiz)
+    }
+
+    function displayQuiz(quizIds)
+    {
+        console.log(quizIds)
+                    //console.log(minuteConv)
+		docRef.where("UniqueCode", "==",quizIds)
+.get()
+	.then((querySnapshot) =>
+	{
+		querySnapshot.forEach((doc) =>
+		{
+            time = doc.data().TimeDuration
+                minuteConv = time * 60
+            displaySec = 60
+			if(quizIds==doc.data().UniqueCode)
+			{
+				docId = doc.id
+			}
+					let vDiv = document.createElement('div')
+				let vQuestion = document.getElementById('question-txt')
+		let optionA = document.getElementById('option-a-id')
+		let optionB = document.getElementById('option-b-id')
+		let optionC = document.getElementById('option-c-id')
+		let optionD = document.getElementById('option-d-id')
+		
+		let allOptions = document.querySelectorAll('.options-cl')
+		for(let element of allOptions)
+		{
+			element.checked = false
+		}
+					counter++;
+					ansCounter++;
+					realAnswer = wQuizD[ansCounter].Answer;
+					console.log(ansCounter)
+			currentQuiz = wQuizD[counter]
+
+            if(doc.data().TimeUnit=='s')
+            {
+             clearInterval(secInterval);
+            }
+                else if(doc.data().TimeUnit=='m')
+                {
+                    clearInterval(minInterval)
+                }
+
+			if(currentQuiz!=null)
+			{
+                sound.play()
+                if(doc.data().TimeUnit=='s')
+            {
+                  secInterval = setInterval(secondStart, 1000);
+            }
+            else if(doc.data().TimeUnit=='m')
+            {
+                minInterval = setInterval(minuteStart, 1000)
+            }
+				if(vAnswer==realAnswer)
+			{
+				score++;
+				console.log(score + 'answer')
+			}
+             //  else if(vAnswer)
+			vQuestion.innerText = currentQuiz.Question
+			//console.log(realAnswer)
+		change_text1 = optionA.childNodes[0]
+		change_text1.nodeValue = currentQuiz.OptionA
+		
+		change_text2 = optionB.childNodes[0]
+		change_text2.nodeValue = currentQuiz.OptionB
+		
+		change_text3 = optionC.childNodes[0]
+		change_text3.nodeValue = currentQuiz.OptionC
+		
+		change_text4 = optionD.childNodes[0]
+		change_text4.nodeValue = currentQuiz.OptionD
+		}
+				else
+			{
+				
+				if(vAnswer==realAnswer)
+				{
+					score++;
+				}
+				let obje = 
+				{
+				Name:localStorage.getItem('NAME'),
+				Score: score,
+				}
+				docRef.doc(docId).update({
+    UserData: firebase.firestore.FieldValue.arrayUnion(obje)
+});			
+				document.getElementById('display-time').style.visibility = 'hidden'
+				document.getElementById('quiz-container').style.display='none'
+				let result = document.getElementById('result')
+				result.style.display='inline'
+				result.innerText = "You got " + score + " questions correctly"
+				
+				//document.getElementById('org-answers').style.display='inline'
+								
+			}
+		})
+	})	
+}
+function secondStart() 
+{
+    if (time === 0) 
+    {
+        clearInterval(secInterval);
+        displayQuiz(realQuiz)
+        //alert(realQuiz)
+        console.log('time up')
+     //   return;
+    } 
+        else 
+        {
+            time--;
+            if (time !== -1) 
+            {	    
+                let sound = new Audio('clock-ticking.wav')
+                sound.play()
+                document.getElementById('display-time').innerText = time
+                //displayTime.innerText = time
+           // console.log(time + " seconds remaining");
+            }
+        }
+    }
+    function minuteStart()
+{
+	if(minuteConv % 60==0)
+	{
+        console.log(time)
+        console.log('seconds to 0')
+		time--;
+		//console.log(time) 
+	}
+  if (time === -1) {
+    console.log('time up')
+    clearInterval(minInterval);
+    displayQuiz(realQuiz)
+  }
+   else { 
+	displaySec--;
+
+    minuteConv--;
+    console.log(time + ': ' + minuteConv);
+    document.getElementById('display-time').innerText = time + ':' + displaySec
+  }
+}
+    </script>
+</body>
+</html>

@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add quiz</title>
+    <style>
+        input{
+            border-radius: 5px;
+        }
+        body{
+            font-family: 'Courier New', Courier, monospace;
+            /*font-family: 'Comic Sans MS, Comic Sans, cursive';*/
+            color:white;
+            background-image: url('background.jpg');
+        }
+        #header-2{
+            color: skyblue;
+            text-shadow: 0 0 5px black, 0 0 10px black, 0 0 15px blue;
+        }
+        #question-txt{
+            color:white;
+            text-shadow: 0 0 5px white, 0 0 10px black, 0 0 15px white;
+        }
+        #q-text{
+            width:500px;
+            height:40px;
+            font-size:20px;
+}
+#q-text::placeholder{
+    font-size: 25px;
+    text-shadow: 0 0 5px white, 0 0 10px black, 0 0 15px white;
+    opacity: 0.5;
+}
+input{
+    background-image: url('background-img.jpg');
+    color:white;
+}
+input::placeholder{
+    font-family: 'Courier New', Courier, monospace;
+    font-family: sans-serif;
+    color:white;
+    text-shadow: 0 0 5px white, 0 0 10px black, 0 0 15px white;
+    font-size: 17px;
+}
+#save-btn{
+    background:skyblue;
+	width:300px;
+	border-radius:10px;
+	height:30px;
+	font-size:15px;
+	cursor:pointer;
+    font-weight: bold;
+    transition: transform 0.2s;
+}
+#save-btn:hover{
+background:limegreen;
+transform: scale(1.2);
+}
+#submit-btn{
+    background:orange;
+	width:400px;
+	border-radius:10px;
+	height:30px;
+	font-size:20px;
+	cursor:pointer;
+    font-weight: bold;
+    transition: transform 0.2s;
+}
+#submit-btn:hover{
+background:red;
+transform: scale(1.2);
+}
+#after-container{
+    display: none;
+}
+#time-container{
+    display: none;
+}
+#quiz-type{
+    display: none;
+}
+    </style>
+</head>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+
+<body>
+    <center>
+        <div id="time-container">
+            <h2>Enter the time for each question.<br>
+                If you want to enter minutes then eg:"1m"<br>
+                If you want to enter seconds then eg:"10s"<br>
+            </h2>
+            <select onchange="getTimeDur(event)" placeholder="10s" type="text" id="time-txt">
+                <option id='disable-txt'disabled selected value> -- Select time--
+                <option id="second-txt">Seconds</option>
+                <option id="minute-txt">Minutes</option>
+            </select><br><br>
+            </div>
+            <div id="quiz-type">
+                <h2>Do you want it to make this quiz public or private</h2>
+                <div id="public-txt">
+                    Public
+                    <input onclick="getType(event)" type="radio" id="public" name="types">
+                </div>
+                <div id="private-txt">
+                    Private
+                    <input onclick="getType(event)" type="radio" id="private" name="types">
+                </div>
+        </div>
+        <div id="after-container">
+            <h1 id="afQuiz"></h1>
+            <h2 id="unique-code-text">Your unique code for this quiz</h2>
+            <h2 id="unique-code">Your unique code for this quiz</h2>
+            </div>
+
+    <h1 id="header-2">Enter the question in the box and provide options and the answer</h1>
+    <div id="question-container">
+    <h1 id="question-no">QUESTION 1</h1>
+    <input placeholder="ENTER QUESTION"type="text" id="q-text"><br><br>
+    <input class="options" placeholder="OPTION  a"id="option-a">
+<input class="options" placeholder="OPTION  b"id="option-b">
+<input class="options" placeholder="OPTION  c"id="option-c">
+<input class="options" placeholder="OPTION  d"id="option-d"><br><br>
+<input id="answer-txt" placeholder="ANSWER"><br><br>
+<!--h3>Time</h3>
+<input id="time-txt" placeholder="eg:min = 1m sec = 10s"><br><br-->
+<button onclick="nextQ()" id="save-btn">SAVE AND ENTER NEXT QUESTION</button>
+    </div><br>
+    <button onclick='makeQuiz()' id="submit-btn">SUBMIT YOUR ANSWERS</button>
+    </center>
+    <script>
+        let timeDropUnit = ''
+        let TimeBox = document.getElementById('time-txt') 
+        function getTimeDur(e)
+        {
+            timeDropUnit = TimeBox.value
+            if(timeDropUnit=='Seconds')
+            {
+                document.getElementById('second-txt').style.display = 'none'
+                document.getElementById('minute-txt').style.display = 'inline'
+                setTimeDrop(5, 60, 5,"s")
+            }
+            else if(timeDropUnit=='Minutes')
+            {
+                document.getElementById('second-txt').style.display = 'inline'
+                document.getElementById('minute-txt').style.display = 'none'
+                setTimeDrop(1, 10, 1, "m")
+            }
+          //  alert(TimeBox.value)
+        }
+        //the timer's dropdown
+    function setTimeDrop(loopStart, loopEnd, loopIncr, timeUnit)
+    {
+        let addedTimes = document.querySelectorAll('.added-time')
+        for(let time of addedTimes)
+        {
+            time.style.display='none'
+        }
+            for(let i = loopStart; i <= loopEnd; i=i+loopIncr)
+        {
+            let timeOptions = document.createElement('option')
+            timeOptions.className = 'added-time'
+  //          let timeOptions2 = document.createElement('option')
+//
+            timeOptions.innerText = i + timeUnit
+           // timeOptions2.innerText = i - 4+ 'm'
+            document.getElementById('time-txt').append(timeOptions)
+        }
+    }
+                let quizNum = 0;
+        let quizType = ''
+        let firebaseConfig = {
+          apiKey: "AIzaSyB2dc7G54nZg1H-tKUbxRtWmADEQxRJv10",
+          authDomain: "simple-login-page-736b4.firebaseapp.com",
+          databaseURL: "https://simple-login-page-736b4-default-rtdb.firebaseio.com",
+          projectId: "simple-login-page-736b4",
+          storageBucket: "simple-login-page-736b4.appspot.com",
+          messagingSenderId: "787439045671",
+          appId: "1:787439045671:web:7f597366a3893300fed202",
+          measurementId: "G-WTGQ0B68PM"
+        };
+        firebase.initializeApp(firebaseConfig)
+        let database = firebase.firestore()
+
+            let i = 1
+        function getType(e)
+        {
+            quizType = e.target.parentElement.innerText
+            //alert(e.target.parentElement.innerText)
+        }
+   //     let docRef = database.collection('Quiz-data')
+        let arr = []
+        let lastQ;
+
+       /* function getqNo()
+        {
+            quizNum = Number(prompt("How much questions are you going to enter(as numeric like 3, 5)"))
+        }*/
+        function getqNo() 
+{
+  do 
+  {
+    quizNum = Number(prompt("How many questions are you going to enter (as a number, like 3, 5)?"));
+    if (isNaN(quizNum) || quizNum < 1 || quizNum>20) 
+    {
+      alert("Please enter a valid number greater than 0 and between 20");
+    }
+  } while (isNaN(quizNum) || quizNum < 1 || quizNum>20);
+  return;
+}
+
+        getqNo()
+            for(let i = 0; i <= quizNum - 1; i++)
+            {
+                let obj = {
+                    Question:"",
+                    OptionA:"",
+                    OptionB:"",
+                    OptionC:"",
+                    OptionD:"",
+                    Answer:""
+                }
+                lastQ = i
+                arr.push(obj)
+            }
+            
+        let docRef = database.collection("Quiz-data")
+        
+                 // console.log(arr)
+        let counter = -1;
+        let qNumCounter = 1
+        let letters = ''
+        let rand;
+        const str = '1234567890' 
+        let strNum = "1234567890"
+        let uniqueNum = ""
+        function nextQ()
+        {
+        qNumCounter++;
+        counter++;
+        if(lastQ==counter)
+        {
+            
+           //alert('sui')
+           document.getElementById('quiz-type').style.display='inline'
+            document.getElementById('question-container').style.display='none'
+            document.getElementById('time-container').style.display='inline'
+            document.getElementById('header-2').style.display='none'
+            console.log(arr)
+            //arr.push(obj)
+            let qText = document.getElementById('q-text')
+            let optionA = document.getElementById('option-a')
+            let optionB = document.getElementById('option-b')
+            let optionC = document.getElementById('option-c')
+            let optionD = document.getElementById('option-d')
+            let tAnswer = document.getElementById('answer-txt')
+            
+            arr[counter].Question = qText.value
+            arr[counter].OptionA = optionA.value
+            arr[counter].OptionB = optionB.value
+            arr[counter].OptionC = optionC.value
+            arr[counter].OptionD = optionD.value
+            arr[counter].Answer = tAnswer.value
+            //console.log(arr)
+            qText.value = ''
+            optionA.value = ''
+            optionB.value = ''
+            optionC.value = ''
+            optionD.value = ''
+            tAnswer.value = ''
+            //alert('suii')
+            return;
+        }
+            document.getElementById('question-no').innerText = "Question " + qNumCounter
+            console.log(arr)
+            //arr.push(obj)
+            let qText = document.getElementById('q-text')
+            let optionA = document.getElementById('option-a')
+            let optionB = document.getElementById('option-b')
+            let optionC = document.getElementById('option-c')
+            let optionD = document.getElementById('option-d')
+            let tAnswer = document.getElementById('answer-txt')
+            
+            arr[counter].Question = qText.value
+            arr[counter].OptionA = optionA.value
+            arr[counter].OptionB = optionB.value
+            arr[counter].OptionC = optionC.value
+            arr[counter].OptionD = optionD.value
+            arr[counter].Answer = tAnswer.value
+            //console.log(arr)
+            qText.value = ''
+            optionA.value = ''
+            optionB.value = ''
+            optionC.value = ''
+            optionD.value = ''
+            tAnswer.value = ''
+        }
+        function makeQuiz()
+        {     
+            let vText = document.getElementById('time-txt')
+            alert(vText.value)
+            if(vText.value.length==0)
+            {
+                alert('Enter the time')
+                return;
+            }
+            let timeUnitVal = vText.value;
+            const newValue = timeUnitVal.slice(0, -1);
+           // vText.value = vText.value.slice(0, -1);
+
+            let timeNum = Number(vText.value)
+            alert(typeof newValue)
+           // return
+            let quizTitle = prompt("Enter a title for this quiz to get this quiz's code later to share with your friends")
+                
+            document.getElementById("time-container").style.display='none'
+                document.getElementById("header-2").style.display='none'
+                document.getElementById('question-container').style.display='none'
+                document.getElementById('submit-btn').style.display='none'
+                document.getElementById('after-container').style.display='inline'
+                let aftQuiz = document.getElementById('afQuiz')
+            //	aftQuiz.style.display='inline'
+                aftQuiz.innerText = "Your quiz has been successfully submitted"
+
+                  for(let i = 0; i < str.length; i++)
+                  {
+                    if(i==4)
+                    {
+                        break;
+                    }
+                    else
+                    rand = Math.floor(Math.random() * str.length)
+                    letters+=str.charAt(rand)
+                  }
+                            for(let i = 0; i < strNum.length; i++)
+                      {
+                        rand = Math.floor(Math.random() * strNum.length)
+                        uniqueNum+=strNum.charAt(rand)
+                      }
+                      //localStorage.setItem("")
+                          if(localStorage.getItem("UniqueID")==null)
+                          {
+                            localStorage.setItem("UniqueID", uniqueNum)
+                        docRef
+                            .add({
+                                Title:quizTitle,
+                                UniqueId: localStorage.getItem("UniqueID"),
+                                UniqueCode: letters,
+                                QuizData: arr,
+                                TimeUnit:timeUnitVal.charAt(timeUnitVal.length - 1),
+                                TimeDuration:Number(newValue),
+                                QuizType:quizType
+                            })
+                          }
+                            else
+                            docRef
+                            .add({
+                                Title: quizTitle,
+                                UniqueId: localStorage.getItem("UniqueID"),
+                                UniqueCode: letters,
+                                QuizData: arr,
+                                TimeUnit:timeUnitVal.charAt(timeUnitVal.length - 1),
+                                TimeDuration:Number(newValue),
+                                QuizType:quizType
+                            })        
+                  document.getElementById("unique-code").innerText = letters
+        }
+        
+        </script>
+</body>
+</html>

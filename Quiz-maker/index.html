@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body{
+            background-image: url('background.jpg');
+            font-family: 'Courier New', Courier, monospace;
+        }
+        #header{
+            text-shadow: 0 0 5px black, 0 0 10px white, 0 0 15px wheat;
+            font-size: 50px;
+            color:skyblue;
+        }
+        #play-btn{
+            font-weight: bold;
+            font-size: 50px;
+
+            color:white;
+            text-shadow: 0 0 5px black, 0 0 10px white, 0 0 15px wheat;
+            background-image: url('background-img.jpg');
+            cursor: pointer;
+        }
+        div{
+            color: white;
+            font-size: 20px;
+            font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+        }
+    </style>
+    <title>Online Quiz</title>
+</head>
+<body>
+
+    <center>
+    <h1 id='header'>QUIZ</h1>
+
+    <div>
+        Welcome to Quiz.com! Our website is a user-generated quiz platform where you can create, share, and take quizzes on a variety of topics. With our easy-to-use quiz builder, you can create your own quizzes and challenge your friends to take them. Or, take a quiz created by another user and test your knowledge on a topic you're interested in. With new quizzes added regularly, there's always something new to learn and explore on Quiz.com. So, come join our community of quiz enthusiasts and start creating and taking quizzes today!
+    </div>
+    <h1 id="play-btn">START QUIZZING TODAY</h1>
+    </center>
+    <script>
+        let playBtn = document.getElementById('play-btn')
+        playBtn.onclick = function(){
+            location.href='main.html'
+        }
+    </script>
+</body>
+</html>
